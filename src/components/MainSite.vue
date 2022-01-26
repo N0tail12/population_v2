@@ -17,25 +17,57 @@
           </div>
         </div>
       </div>
+      <div
+        class="mainContent"
+        v-if="this.data.length > 0 && this.checked.length > 0"
+      >
+        <Chart :data="data" />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import getTown from "../services/getTown";
+import fetchHandle from "../services/fetchHandle";
+import Chart from "./Chart.vue";
 export default {
+  components: {
+    Chart,
+  },
   data() {
     return {
       towns: [],
       checked: [],
+      data: [],
+      tmp: [],
     };
   },
   mounted() {
-    getTown.fetchTown().then((data) => (this.towns = data.result));
+    fetchHandle
+      .fetchTown()
+      .then((data) => (this.towns = data.result))
+      .catch((err) => console.error(err));
   },
   methods: {
     updateChecked() {
-      console.log(this.checked);
+      this.data = [];
+      for (let i = 0; i < this.checked.length; ++i) {
+        fetchHandle
+          .fetchPopulation(this.checked[i])
+          .then((data) => {
+            let name = this.towns.filter(
+              (town) => town.prefCode == this.checked[i]
+            );
+            let value = data.result.data[0].data
+              .filter((value) => value.year >= 1980 && value.year <= 2015)
+              .map((value) => value.value);
+            let newData = { name: name[0].prefName, data: value };
+            if (!this.data.some((obj) => obj.name == name[0].prefName))
+              this.data.push(newData);
+          })
+          .catch((err) => console.error(err));
+      }
+      console.log(this.data);
     },
   },
 };
@@ -52,26 +84,28 @@ label {
 }
 input:checked ~ label {
   background: #09ff00;
+  color: white;
 }
 .mainSite {
   color: #aaa;
   font-size: 0.9rem;
   letter-spacing: 1px;
   font-weight: 700;
-  animation: fade-in 1s ease-in;
 }
 .mainContent {
   padding: 20px;
   margin: 30px;
-  max-width: 960px;
+  width: min(1200px, 90%);
   background-color: #fff;
   border-radius: 10px;
-  box-shadow: inset;
+  box-shadow: rgba(0, 0, 0, 0.28) 0 0 10px;
+  animation: fade-in 1s ease-in-out;
 }
 .container {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* flex-direction: column; */
   height: 100vh;
 }
 .title {
