@@ -5,7 +5,15 @@
         <h1 class="title">都道府県</h1>
         <div class="towns-list">
           <div class="town" v-for="town in towns" :key="town.prefCode">
-            {{ town.prefName }}
+            <input
+              type="checkbox"
+              :value="town.prefCode"
+              :id="town.prefCode"
+              v-model="checked"
+              @change="updateChecked"
+              hidden
+            />
+            <label :for="town.prefCode">{{ town.prefName }}</label>
           </div>
         </div>
       </div>
@@ -19,15 +27,32 @@ export default {
   data() {
     return {
       towns: [],
+      checked: [],
     };
   },
   mounted() {
     getTown.fetchTown().then((data) => (this.towns = data.result));
   },
+  methods: {
+    updateChecked() {
+      console.log(this.checked);
+    },
+  },
 };
 </script>
 
 <style scoped>
+label {
+  width: 100px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+input:checked ~ label {
+  background: #09ff00;
+}
 .mainSite {
   color: #aaa;
   font-size: 0.9rem;
