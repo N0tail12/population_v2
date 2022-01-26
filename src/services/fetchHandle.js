@@ -2,7 +2,6 @@ const apiKey = process.env.VUE_APP_X_API_KEY;
 const apiUrl = process.env.VUE_APP_API_URL;
 
 async function fetchTown() {
-  console.log(apiUrl);
   return await fetch(`${apiUrl}/prefectures`, {
     method: "GET",
     headers: {
